@@ -64,7 +64,7 @@ class Root(tk.Tk):
             self.progress["value"] = 0
             self.progress["maximum"] = 100
 
-            # Создайте новый поток для классификации изображений, передавая self как аргумент
+            
             classification_thread = threading.Thread(target=self.process_images, args=(self,))
             classification_thread.start()
 

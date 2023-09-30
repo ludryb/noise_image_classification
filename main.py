@@ -1,11 +1,8 @@
-import tensorflow as tf
 from PIL import Image, ImageTk
-import numpy as np
 import tkinter as tk
 from tkinter import filedialog as fd
-import requests
-from tqdm import tqdm
 import os
+import pandas as pd
 
 
 class Root(tk.Tk):
@@ -57,7 +54,26 @@ class Root(tk.Tk):
                 os.makedirs(self.output_folder + '/images_without_animals')
             if not os.path.exists(self.output_folder + '/broken_images'):
                 os.makedirs(self.output_folder + '/broken_images')
-
+            self.save_csv()
+    
+    def get_files(self, PATH):
+        files = []
+        for file in os.listdir(PATH):
+            if os.path.isdir(f"{PATH}/{file}"):
+                files += self.get_files(f"{PATH}/{file}")
+            else:
+                files.append(f"{PATH}/{file}")
+        return files
+    
+    def save_csv(self):
+        files = self.get_files(self.input_folder)
+        data = {
+            'filenames':files,
+            'broken':[0] * len(files),
+            'empty':[0] * len(files),
+            'animal':[0] * len(files)
+        }
+        pd.DataFrame(data).to_csv(self.output_folder + '/submission.csv', index=False)
 
 root = Root()
 root.mainloop()

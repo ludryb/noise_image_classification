@@ -1,18 +1,10 @@
-from PIL import Image, ImageTk
 import tkinter as tk
 from tkinter import filedialog as fd
 import os
 import pandas as pd
 
 import torch
-import torch.nn as nn
-import torch.optim as optim
-import torch.nn.functional as F
-import torchvision
 import torchvision.transforms as transforms
-import matplotlib.pyplot as plt
-import numpy as np
-import matplotlib
 from tqdm import tqdm
 from PIL import Image, ImageFile
 import shutil

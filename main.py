@@ -9,44 +9,59 @@ from tqdm import tqdm
 from PIL import Image, ImageFile
 import shutil
 import requests
-
+import tkinter as tk
+from tkinter import ttk
+import torch
+from ttkthemes import ThemedTk
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
-class Root(tk.Tk):
+
+class Root(ThemedTk):
     def __init__(self):
         super(Root, self).__init__()
+
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.animals_model = self.load_model('animals.pt')
         self.noise_model = self.load_model('noise.pt')
 
+        self.set_theme("arc")  # Устанавливаем тему arc из библиотеки ttkthemes
+
         self.title("Классификация изображений для заповедника")
-        self.minsize(500, 200)
-        self.resizable(width=False, height=False)
-        self.choice_folder_with_images_label = tk.Label(self, text="Выберите папку с изображениями", font=("Tahoma", 16))
-        self.choice_folder_with_images_label.pack()
-        self.choice_folder_with_images_button = tk.Button(
-            self,
-            text="Выбрать папку с изображениями",
-            command=self.get_input_folder,
-            font=("Tahoma", 12)
-        )
-        self.choice_folder_with_images_button.pack()
-        self.choice_output_folder_label = tk.Label(self, text="Выберите папку для сохранения результата", font=("Tahoma", 16))
-        self.choice_output_folder_label.pack()
-        self.choice_output_folder_button = tk.Button(
-            self,
-            text="Выбрать папку для сохранения результата",
-            command=self.get_output_folder,
-            font=("Tahoma", 12)
-        )
-        self.choice_output_folder_button.pack()
-        self.classification_button = tk.Button(
-            self,
-            text="Классифицировать",
-            command=self.classification,
-            font=("Tahoma", 12)
-        )
-        self.classification_button.pack()
+        self.minsize(600, 300)
+        self.resizable(width=True, height=True)  # Разрешаем изменение размера окна
+
+        self.create_widgets()
+
+    def create_widgets(self):
+        header_frame = ttk.Frame(self)
+        header_frame.pack(fill=tk.X, padx=10, pady=5)
+
+        header_label = ttk.Label(header_frame, text="Классификация изображений для заповедника", font=("Arial", 16))
+        header_label.pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+        input_frame = ttk.Frame(self)
+        input_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+
+        self.folder_label = ttk.Label(input_frame, text="", font=("Tahoma", 12))
+        self.folder_label.grid(row=0, column=0, columnspan=2, pady=10, sticky="w")
+
+        choose_input_button = ttk.Button(input_frame, text="Выбрать папку с изображениями", command=self.get_input_folder)
+        choose_input_button.grid(row=1, column=0, pady=10, padx=5, sticky="w")
+
+        self.output_folder_label = ttk.Label(input_frame, text="", font=("Tahoma", 12))
+        self.output_folder_label.grid(row=2, column=0, columnspan=2, pady=10, sticky="w")
+
+        choose_output_button = ttk.Button(input_frame, text="Выбрать папку для вывода данных", command=self.get_output_folder)
+        choose_output_button.grid(row=3, column=0, pady=10, padx=5, sticky="w")
+
+        classify_button = ttk.Button(self, text="Классифицировать изображения", command=self.classification)
+        classify_button.pack(pady=20)
+
+        self.progress = ttk.Progressbar(self, orient="horizontal", length=400, mode="determinate")
+        self.progress.pack(pady=5)
+
+        self.progress_label = ttk.Label(self, text="", font=("Tahoma", 12))
+        self.progress_label.pack(pady=5)
 
     def load_model(self, model_name):
         try:
